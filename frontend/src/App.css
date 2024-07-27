@@ -3,7 +3,7 @@
 }
 
 .App-header {
-  background-image: url('/Users/anhadpreetsingh/Desktop/AWS_Secret/frontend/src/components/picture.png'); /* Add your background image path */
+  background-image: url('/src/components/picture.png'); /* Add your background image path */
   background-size: cover;
   background-position: center;
   color: white;
@@ -83,6 +83,17 @@
 .submit-button {
   padding: 10px 20px;
   background-color: black;
+  color: white;
+  margin-top: 20px;
+  justify-content: center;
+  
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.sos-button {
+  padding: 10px 20px;
+  background-color: rgb(255, 0, 0);
   color: white;
   margin-top: 20px;
   justify-content: center;
