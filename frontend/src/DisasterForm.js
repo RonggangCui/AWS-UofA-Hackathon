@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Form, Button, Alert, Row, Col } from 'react-bootstrap';
+import { Container, Form, Button, Alert } from 'react-bootstrap';
 
 const DisasterForm = () => {
   const [disasterName, setDisasterName] = useState('');
@@ -29,7 +29,7 @@ const DisasterForm = () => {
 
   return (
     <Container className="mt-5">
-      <h1 className="text-center">Disaster Help Form</h1>
+      <h1 className="text-center">Live Online Information Report</h1>
       <Form onSubmit={handleSubmit} className="bg-light p-4 rounded shadow">
         <Form.Group controlId="formDisasterName">
           <Form.Label>Disaster Name</Form.Label>
@@ -55,22 +55,19 @@ const DisasterForm = () => {
 };
 
 const FormattedResponseMessage = ({ message }) => {
-  // This function formats the response message by splitting it into sections.
   const lines = message.split('\n');
   return (
     <Container>
       {lines.map((line, index) => (
-        <Row key={index}>
-          <Col>
-            {line.startsWith('Potential Misinformation:') && <h5 className="mt-4">{line}</h5>}
-            {line.startsWith('Useful Information for Decision-making:') && <h5 className="mt-4">{line}</h5>}
-            {line.startsWith('1. ') || line.startsWith('2. ') || line.startsWith('3. ') ? (
-              <p className="mb-2">{line}</p>
-            ) : (
-              <p className="mb-3">{line}</p>
-            )}
-          </Col>
-        </Row>
+        <div key={index}>
+          {line.startsWith('Potential Misinformation:') && <h5 className="mt-4">{line}</h5>}
+          {line.startsWith('Useful Information for Decision-making:') && <h5 className="mt-4">{line}</h5>}
+          {line.startsWith('1. ') || line.startsWith('2. ') || line.startsWith('3. ') ? (
+            <p className="mb-2">{line}</p>
+          ) : (
+            <p className="mb-3">{line}</p>
+          )}
+        </div>
       ))}
     </Container>
   );
