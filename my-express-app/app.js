@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const axios = require('axios');
 const AWS = require("aws-sdk");
 
 const app = express();
@@ -12,6 +13,58 @@ AWS.config.update({
     region: process.env.AWS_REGION,
 });
 
+const searchReddit = async (query) => {
+    try {
+      const authResponse = await axios.post(
+        'https://www.reddit.com/api/v1/access_token',
+        new URLSearchParams({
+          grant_type: 'client_credentials',
+        }),
+        {
+          auth: {
+            username: process.env.REDDIT_CLIENT_ID,
+            password: process.env.REDDIT_SECRET,
+          },
+          headers: {
+            'User-Agent': process.env.REDDIT_USER_AGENT,
+          },
+        }
+      );
+  
+      const token = authResponse.data.access_token;
+  
+      const searchResponse = await axios.get(
+        `https://oauth.reddit.com/search?q=${encodeURIComponent(query)}&sort=hot&limit=10`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'User-Agent': process.env.REDDIT_USER_AGENT,
+          },
+        }
+      );
+  
+      const posts = searchResponse.data.data.children.map((child) => {
+        const { title, selftext, created_utc, subreddit, permalink } = child.data;
+        return {
+          title,
+          selftext,
+          created_utc: new Date(created_utc * 1000).toISOString(),
+          subreddit,
+          permalink: `https://reddit.com${permalink}`,
+        };
+      });
+  
+      return posts;
+    } catch (error) {
+      if (error.code === 'ENOTFOUND') {
+        console.error('DNS resolution failed. Unable to reach www.reddit.com.');
+      } else {
+        console.error('Error occurred while fetching data from Reddit:', error.message);
+      }
+      throw error;
+    }
+};
+
 // Example: Create an instance of the Bedrock runtime client
 const bedrock = new AWS.BedrockRuntime({ apiVersion: "latest" });
 
@@ -20,6 +73,18 @@ app.use(express.json());
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });
+
+app.get('/search', async (req, res) => {
+    const query = "jasper wildfire";
+  
+    try {
+      const redditResponse = await searchReddit(query);
+      console.log(redditResponse);
+      res.send("Data back");
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch data from Reddit' });
+    }
+  });
 
 // Define the GET endpoint
 app.get("/bedrock-query", async (req, res) => {
