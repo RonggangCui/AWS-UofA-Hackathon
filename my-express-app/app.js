@@ -13,8 +13,9 @@ AWS.config.update({
     region: process.env.AWS_REGION,
 });
 
-const searchReddit = async (query) => {
+const getRedditAuthToken = async () => {
     try {
+      console.log('Attempting to fetch Reddit auth token...');
       const authResponse = await axios.post(
         'https://www.reddit.com/api/v1/access_token',
         new URLSearchParams({
@@ -30,9 +31,19 @@ const searchReddit = async (query) => {
           },
         }
       );
+      console.log('Successfully obtained auth token');
+      return authResponse.data.access_token;
+    } catch (error) {
+      console.error('Error fetching Reddit auth token:', error.message);
+      throw error;
+    }
+  };
   
-      const token = authResponse.data.access_token;
-  
+  const searchReddit = async (query) => {
+    try {
+      console.log('Obtaining Reddit auth token...');
+      const token = await getRedditAuthToken();
+      console.log('Searching Reddit for query:', query);
       const searchResponse = await axios.get(
         `https://oauth.reddit.com/search?q=${encodeURIComponent(query)}&sort=hot&limit=10`,
         {
@@ -42,28 +53,32 @@ const searchReddit = async (query) => {
           },
         }
       );
+      console.log('Successfully fetched search results');
   
       const posts = searchResponse.data.data.children.map((child) => {
-        const { title, selftext, created_utc, subreddit, permalink } = child.data;
+        const { title, selftext, author, ups, score, num_comments, created_utc, permalink, num_crossposts } = child.data;
+  
         return {
-          title,
-          selftext,
-          created_utc: new Date(created_utc * 1000).toISOString(),
-          subreddit,
+          post_title: title,
+          post_content: selftext,
+          author: author,
+          number_of_upvotes: ups,
+          number_of_downvotes: Math.abs(score) - ups,
+          number_of_comments: num_comments,
+          number_of_shares: num_crossposts,
+          created_at: new Date(created_utc * 1000).toISOString(),
           permalink: `https://reddit.com${permalink}`,
         };
       });
   
+      console.log('Successfully processed all posts');
       return posts;
     } catch (error) {
-      if (error.code === 'ENOTFOUND') {
-        console.error('DNS resolution failed. Unable to reach www.reddit.com.');
-      } else {
-        console.error('Error occurred while fetching data from Reddit:', error.message);
-      }
+      console.error('Error occurred during Reddit search:', error.message);
       throw error;
     }
-};
+  };
+  
 
 // Example: Create an instance of the Bedrock runtime client
 const bedrock = new AWS.BedrockRuntime({ apiVersion: "latest" });
@@ -80,11 +95,17 @@ app.get('/search', async (req, res) => {
     try {
       const redditResponse = await searchReddit(query);
       console.log(redditResponse);
-      res.send("Data back");
+      res.json(redditResponse);
     } catch (error) {
+      if (error.code === 'ENOTFOUND') {
+        console.error('DNS resolution failed. Unable to reach www.reddit.com.');
+      } else {
+        console.error('Error occurred while fetching data from Reddit:', error.message);
+      }
       res.status(500).json({ error: 'Failed to fetch data from Reddit' });
     }
-  });
+});
+  
 
 // Define the GET endpoint
 app.get("/bedrock-query", async (req, res) => {
