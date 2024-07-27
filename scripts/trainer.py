@@ -1,31 +1,17 @@
+# model_trainer.py
+
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import joblib
+from data_preprocessor import extract_features
 
 # Example data loading function
 def load_data():
-    # Replace with actual data loading
-    data = pd.read_csv('social_media_data.csv')
+    # Load data from JSON file
+    data = pd.read_json('reddit_posts.json')
     return data
-
-# Example text normalization function
-def normalize_text(text):
-    return text.lower().replace('[^a-zA-Z0-9\s]', '')
-
-# Example feature extraction function
-def extract_features(data):
-    data['text_normalized'] = data['text'].apply(normalize_text)
-    vectorizer = TfidfVectorizer(max_features=1000)
-    X_text = vectorizer.fit_transform(data['text_normalized']).toarray()
-    
-    # Combine with other features
-    X = pd.concat([pd.DataFrame(X_text), data[['user_verified', 'user_followers_count', 'account_age_days', 'retweet_count', 'favorite_count', 'engagement_ratio']]], axis=1)
-    y = data['label']
-    
-    return X, y, vectorizer
 
 # Load and preprocess data
 data = load_data()

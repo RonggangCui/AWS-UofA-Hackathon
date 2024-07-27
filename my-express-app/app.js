@@ -39,45 +39,49 @@ const getRedditAuthToken = async () => {
     }
   };
   
-  const searchReddit = async (query) => {
+  const searchReddit = async (queries) => {
+    let res_final = [];
     try {
-      console.log('Obtaining Reddit auth token...');
-      const token = await getRedditAuthToken();
-      console.log('Searching Reddit for query:', query);
-      const searchResponse = await axios.get(
-        `https://oauth.reddit.com/search?q=${encodeURIComponent(query)}&sort=hot&limit=10`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'User-Agent': process.env.REDDIT_USER_AGENT,
-          },
+        for (const query of queries) {
+            console.log('Obtaining Reddit auth token...');
+            const token = await getRedditAuthToken();
+            console.log('Searching Reddit for query:', query);
+            const searchResponse = await axios.get(
+                `https://oauth.reddit.com/search?q=${encodeURIComponent(query)}&sort=hot&limit=10`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'User-Agent': process.env.REDDIT_USER_AGENT,
+                    },
+                }
+            );
+            console.log('Successfully fetched search results');
+
+            const posts = searchResponse.data.data.children.map((child) => {
+                const { title, selftext, author, ups, score, num_comments, created_utc, permalink, num_crossposts } = child.data;
+                res_final.push({
+                    title: title,
+                    description: selftext,
+                    user: author,
+                    upvotes: ups,
+                    number_of_downvotes: Math.abs(score) - ups,
+                    num_comments: num_comments,
+                    num_shares: num_crossposts,
+                    created_at: new Date(created_utc * 1000).toISOString()
+                });
+            });
         }
-      );
-      console.log('Successfully fetched search results');
-  
-      const posts = searchResponse.data.data.children.map((child) => {
-        const { title, selftext, author, ups, score, num_comments, created_utc, permalink, num_crossposts } = child.data;
-  
-        return {
-          post_title: title,
-          post_content: selftext,
-          author: author,
-          number_of_upvotes: ups,
-          number_of_downvotes: Math.abs(score) - ups,
-          number_of_comments: num_comments,
-          number_of_shares: num_crossposts,
-          created_at: new Date(created_utc * 1000).toISOString(),
-          permalink: `https://reddit.com${permalink}`,
-        };
-      });
-  
-      console.log('Successfully processed all posts');
-      return posts;
+        const filePath = path.join(__dirname, 'reddit_search_results.json');
+
+        // Write the results to a JSON file
+        fs.writeFileSync(filePath, JSON.stringify(res_final, null, 2));
+
+        console.log(`Results written to ${filePath}`);
     } catch (error) {
-      console.error('Error occurred during Reddit search:', error.message);
-      throw error;
+        console.error('Error occurred during Reddit search:', error.message);
+        throw error;
     }
-  };
+};
   
 
 // Example: Create an instance of the Bedrock runtime client
@@ -90,10 +94,14 @@ app.get("/", (req, res) => {
 });
 
 app.get('/search', async (req, res) => {
-    const query = "jasper wildfire";
+    const queries = ["jasper wildfire", "Edmonton wildfire", "California wildfire", "Edmonton Wildfire smoke", "Edmonton Wildfire evacuation"
+    , "Edmonton Wildfire air quality", "Edmonton Wildfire news", "Edmonton Wildfire update", "Edmonton Wildfire evacuation order", "Edmonton Wildfire evacuation alert",
+    "Edmonton Wildfire evacuation warning", "Edmonton Wildfire evacuation zone", "Edmonton Wildfire evacuation map", "Edmonton Wildfire evacuation route", "Edmonton Wildfire evacuation plan",
+    "Edmonton Wildfire evacuation checklist", "Edmonton Wildfire evacuation kit", "Edmonton Wildfire evacuation center", "Edmonton Wildfire evacuation shelter", "Edmonton Wildfire evacuation hotel"
+    ];
   
     try {
-      const redditResponse = await searchReddit(query);
+      const redditResponse = await searchReddit(queries);
       console.log(redditResponse);
       res.json(redditResponse);
     } catch (error) {
