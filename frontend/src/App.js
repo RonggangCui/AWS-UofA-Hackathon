@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container, Navbar, Nav, Tab, Tabs } from 'react-bootstrap';
 import DisasterForm from './DisasterForm';
+import InformationConfirmation from './InformationConfirmation';
 
 const App = () => {
   return (
@@ -25,15 +26,6 @@ const App = () => {
         </Tabs>
       </Container>
     </Container>
-  );
-};
-
-const InformationConfirmation = () => {
-  return (
-    <div className="p-4">
-      <h2>Information Confirmation</h2>
-      <p>Content for Information Confirmation will go here.</p>
-    </div>
   );
 };
 

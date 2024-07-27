@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Container, Form, Button, Alert, Row, Col } from 'react-bootstrap';
+import { Container, Form, Button, Alert } from 'react-bootstrap';
 
-const DisasterForm = () => {
+const InformationConfirmation = () => {
   const [disasterName, setDisasterName] = useState('');
   const [responseMessage, setResponseMessage] = useState('');
 
@@ -12,7 +12,7 @@ const DisasterForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/report', {
+      const response = await fetch('http://localhost:5000/confirm', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -23,26 +23,26 @@ const DisasterForm = () => {
       setResponseMessage(result);
     } catch (error) {
       console.error('Error submitting the form', error);
-      setResponseMessage('An error occurred while submitting the report.');
+      setResponseMessage('An error occurred while submitting the confirmation.');
     }
   };
 
   return (
     <Container className="mt-5">
-      <h1 className="text-center">Live Online Information Report</h1>
+      <h1 className="text-center">Information Confirmation</h1>
       <Form onSubmit={handleSubmit} className="bg-light p-4 rounded shadow">
         <Form.Group controlId="formDisasterName">
-          <Form.Label>Disaster Name</Form.Label>
+          <Form.Label>Enter a disaster and a question to be confirmed</Form.Label>
           <Form.Control
             type="text"
-            placeholder="Enter the disaster name (e.g., Jasper Wildfire)"
+            placeholder="Enter the disaster name and a question(e.g., Jasper Wildfire and anyone died?)"
             value={disasterName}
             onChange={handleChange}
             required
           />
         </Form.Group>
         <Button variant="primary" type="submit" className="mt-3">
-          Submit Report
+          Submit Confirmation
         </Button>
       </Form>
       {responseMessage && (
@@ -59,21 +59,18 @@ const FormattedResponseMessage = ({ message }) => {
   return (
     <Container>
       {lines.map((line, index) => (
-        <Row key={index}>
-          <Col>
-            {line.startsWith('Potential Misinformation:') && <h5 className="mt-4">{line}</h5>}
-            {line.startsWith('Useful Information for Decision-making:') && <h5 className="mt-4">{line}</h5>}
-            {line.startsWith('1. ') || line.startsWith('2. ') || line.startsWith('3. ') ? (
-              <p className="mb-2">{line}</p>
-            ) : (
-              <p className="mb-3">{line}</p>
-            )}
-          </Col>
-        </Row>
+        <div key={index}>
+          {line.startsWith('Potential Misinformation:') && <h5 className="mt-4">{line}</h5>}
+          {line.startsWith('Useful Information for Decision-making:') && <h5 className="mt-4">{line}</h5>}
+          {line.startsWith('1. ') || line.startsWith('2. ') || line.startsWith('3. ') ? (
+            <p className="mb-2">{line}</p>
+          ) : (
+            <p className="mb-3">{line}</p>
+          )}
+        </div>
       ))}
     </Container>
   );
 };
 
-export default DisasterForm;
-
+export default InformationConfirmation;

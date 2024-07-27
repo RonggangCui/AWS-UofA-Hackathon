@@ -133,6 +133,46 @@ app.post('/report', async (req, res) => {
     }
 });
 
+app.post('/confirm', async (req, res) => {
+    const { disasterName } = req.body;
+    console.log('Disaster Report Received:', disasterName);
+
+    try {
+        // Query Reddit with the disaster name
+        const redditResults = await searchReddit(disasterName);
+
+        // Use the results from Reddit to create a report using AWS Bedrock
+        const params = {
+            modelId: "anthropic.claude-3-sonnet-20240229-v1:0",
+            contentType: "application/json",
+            accept: "application/json",
+            body: JSON.stringify({
+                anthropic_version: "bedrock-2023-05-31",
+                max_tokens: 1000,
+                messages: [
+                    {
+                        role: "user",
+                        content: `Create a report to determing if the user input is true ${disasterName}, with the related infomation online. Give reasoning process. ${JSON.stringify(redditResults)}`,
+                    },
+                ],
+            }),
+        };
+
+        console.log("Request Params:", params);
+        const response = await bedrock.invokeModel(params).promise();
+        console.log("Raw Response:", response);
+
+        const responseBody = JSON.parse(response.body.toString());
+        console.log("Parsed Response:", responseBody);
+        const report = responseBody.content[0].text;
+
+        res.status(200).send(report);
+    } catch (error) {
+        console.error('Error occurred while processing the report:', error.message);
+        res.status(500).send('Failed to generate report');
+    }
+});
+
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);
 });
