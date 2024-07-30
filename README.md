@@ -1,8 +1,8 @@
-# 🌟 AWS Wildfire Solution Hackathon - Team 3: Disaster Watch 🌟
+# 🌟 AWS Wildfire Solution Hackathon - Disaster Watch 🌟
 
 🙏 Our Hearts Go Out to Those Affected by the Wildfires 🙏
 
-We are **Team 3**, and we are humbled to announce that our project, **Disaster Watch**, won **3rd Place** at the **AWS Wildfire Solution Hackathon** in Edmonton, AB, July 2024! 🥉✨ Our thoughts are with all those affected by the recent wildfires. We are grateful to AWS and the University of Alberta for organizing this important event, bringing together innovators to find solutions for such critical issues. 💖
+We are thrilled to announce that our project, **Disaster Watch**, won **3rd Place** at the **AWS Wildfire Solution Hackathon** in Edmonton, AB, July 2024! 🥉✨ Our thoughts are with all those affected by the recent wildfires. We are grateful to AWS and the University of Alberta for organizing this important event, bringing together innovators to find solutions for such critical issues. 💖
 
 ## 🎯 Project Overview
 
@@ -31,5 +31,9 @@ In times of disaster, accurate and timely information is crucial for effective r
 ## 🚀 Conclusion
 
 **Disaster Watch** is more than just a project; it's a passionate commitment to leveraging technology for good. Our journey at the AWS Wildfire Solution Hackathon was filled with creativity, collaboration, and a relentless drive to innovate. We are incredibly proud of what we accomplished and excited about the potential impact of our solution in real-world scenarios. 🌍💪
+
+### Team Members
+- **Team Lead:** Ronggang Cui
+- **Members:** Anhadpreet Singh, Afraz Khan, Nivit Singh, Swayam Seth
 
 Thank you to everyone who supported us, and stay tuned for more updates! Let's continue making the world a safer place, one innovation at a time. ✨🙌
